@@ -1,96 +1,72 @@
 #!/usr/bin/env bash
+clear
+echo "Starting Ron Ishak's Machine Setup"
+echo "https://github.com/ronishak/setup/"
 echo
-echo "Starting Machine Setup"
-echo
+echo "Enter your password"
 
 # Fail immediately if any errors occur
 # set -e
-sudo -K
+
+# Ask for sudo upfront
+sudo -K 
 sudo true;
 
-echo
-echo "Lets Roll"
+# Keep-alive: update existing `sudo` time stamp until finished
+while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
-# Homebrew needs to be set up first
-echo
+# Install all available updates
+sudo softwareupdate -iva
 
-if hash brew 2>/dev/null; then
-  echo "Homebrew is already installed!"
-else
-  echo "Installing Homebrew..."
-  ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-fi
+# Install Xcode command line tools
+xcode-select --install
 
-echo
-echo "Ensuring you have the latest Homebrew..."
-brew update
+MY_DIR="$(dirname "$0")"
 
-echo
-echo "Ensuring your Homebrew directory is writable..."
-sudo chown -R $(whoami) /usr/local/bin
+# Prep
+source ${MY_DIR}/homebrew.sh
+# source ${MY_DIR}/mas.sh
 
-echo
-echo "Installing Homebrew services..."
-brew tap homebrew/services
-
-echo
-echo "Upgrading existing brews..."
-brew upgrade
-
-echo "Cleaning up your Homebrew installation..."
-brew cleanup
-
-echo
-echo "Adding Homebrew's sbin to your PATH..."
-echo 'export PATH="/usr/local/sbin:$PATH"' >> ~/.bash_profile
-
-# echo
-# echo "Linking Mac App Store"
-# brew install mas
-# mas signin --dialog ronald@ishak.net
-
-echo
-echo "Preparing Cask"
-# Add more from here https://caskroom.github.io/search
 brew tap caskroom/cask
+brew install wget
 
-echo
-echo "Installing Browsers"
+# Add more from here https://caskroom.github.io/search
 
+# Core Apps
+brew cask install alfred
+brew cask install iterm2
+brew cask install java
+
+# Browsers
 brew cask install google-chrome
 brew cask install firefox
 brew cask install torbrowser
 
-echo
-echo "Installing Dev Tools"
-
-# brew install git
+# Dev Tools
+brew install git
 brew cask install sublime-text
 brew cask install atom
+brew cask install virtualbox
 brew cask install dash
 brew cask install postman
-brew cask install iterm2
 brew cask install macdown
+brew cask install vagrant
 brew cask install transmit
-# brew cask install virtualbox # needs password
+brew install heroku-toolbelt
+heroku update
+
+# brew install docker
 # postgresql
-# heroku-toolbelt
 # pip2
 # zsh
+# awscli
 
-echo
-echo "Installing Productivity Tools"
-
+# Productivity Tools
 brew cask install lastpass
+open '/usr/local/Caskroom/lastpass/latest/LastPass Installer.app'
 brew cask install google-backup-and-sync
-brew cask install alfred
-# brew cask install microsoft-office # needs password
+brew cask install microsoft-office
 brew cask install evernote
-# brew cask install fantastical
-
-echo
-echo "Installing MacOS Tools"
-
 brew cask install bettertouchtool
 brew cask install hazel
 brew cask install istat-menus
@@ -98,9 +74,7 @@ brew cask install dnscrypt
 brew cask install transmission
 brew cask install torguard
 
-echo
-echo "Installing Communication Tools"
-
+# Communication Tools
 brew cask install rambox
 brew cask install slack
 brew cask install skype
@@ -108,34 +82,52 @@ brew cask install whatsapp
 brew cask install textual
 brew cask install zoomus
 
-echo
-echo "Installing Media Apps"
-
+# Media Apps
 brew cask install spotify
 brew cask install vlc
 brew cask install kindle
 brew cask install calibre
 
-echo
-echo "Installing Graphic Apps"
-
+# Graphic Apps
 # brew cask install adobe-creative-cloud
 # brew cask install adobe-photoshop-cc
 # brew cask install adobe-illustrator-cc
 brew cask install sketch
 
-echo
-echo "Installing Screen Recording Tools"
-
+# Screen Recording Tools
 brew cask install recordit
-brew cask install screenflow
+# brew cask install screenflow
 
-echo
-echo "Installing NodeJS"
-
+# Node
 brew install node
+brew install postgres
+
+# Git Alias
+echo
+echo "Setting up Git aliases..."
+git config --global alias.gst git status
+git config --global alias.st status
+git config --global alias.di diff
+git config --global alias.co checkout
+git config --global alias.ci commit
+git config --global alias.br branch
+git config --global alias.sta stash
+git config --global alias.llog "log --date=local"
+git config --global alias.flog "log --pretty=fuller --decorate"
+git config --global alias.lg "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative"
+git config --global alias.lol "log --graph --decorate --oneline"
+git config --global alias.lola "log --graph --decorate --oneline --all"
+git config --global alias.blog "log origin/master... --left-right"
+git config --global alias.ds diff --staged
+git config --global alias.fixup commit --fixup
+git config --global alias.squash commit --squash
+git config --global alias.unstage reset HEAD
+git config --global alias.rum "rebase master@{u}"
+echo "#Git" >> ~/.bash_it/aliases/enabled/general.aliases.bash
+echo "alias gst='git status'" >> ~/.bash_it/aliases/enabled/general.aliases.bash
+
+# Cleanup
+brew cleanup
 
 echo
-echo "-----------------------------------------"
-echo "Done!"
-echo "-----------------------------------------"
+echo "Finished! Enjoy your new computer!"
